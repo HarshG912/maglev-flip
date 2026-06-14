@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+  <!-- Outer metallic casing -->
+  <rect x="2" y="2" width="36" height="36" rx="4" fill="#212121" />
+  <!-- Red hazard background -->
+  <rect x="5" y="5" width="30" height="30" rx="2" fill="#B71C1C" />
+  <!-- Hazard warning stripes -->
+  <line x1="5" y1="5" x2="35" y2="35" stroke="#FF5252" stroke-width="4" />
+  <line x1="35" y1="5" x2="5" y2="35" stroke="#FF5252" stroke-width="4" />
+  <!-- Glowing yellow energy core in the center -->
+  <rect x="15" y="15" width="10" height="10" rx="5" fill="#FFEB3B" />
+</svg>

@@ -15,4 +15,4 @@ flutter pub get
 
 # 5. Build the high-performance web version of Maglev Flip
 echo "Building the Vibe Engine..."
-flutter build web --release --web-renderer canvaskit
+flutter build web --release

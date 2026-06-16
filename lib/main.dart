@@ -160,6 +160,8 @@ class QuizMenu extends StatefulWidget {
 
 class _QuizMenuState extends State<QuizMenu> {
   late List<String> shuffledOptions;
+  String? selectedOption;
+  bool isProcessing = false;
 
   @override
   void initState() {
@@ -168,6 +170,20 @@ class _QuizMenuState extends State<QuizMenu> {
     // This prevents the buttons from changing order if the screen resizes
     final question = widget.game.currentQuestion!;
     shuffledOptions = List.from(question.allOptions)..shuffle();
+  }
+
+  Color? _getButtonColor(String option, bool isCorrect) {
+    if (!isProcessing) return Colors.blueGrey[900];
+    if (isCorrect) return Colors.green[800]; // Highlight correct answer always!
+    if (selectedOption == option && !isCorrect) return Colors.red[800]; // Highlight wrong choice
+    return Colors.blueGrey[900]; // Default
+  }
+
+  Color _getBorderColor(String option, bool isCorrect) {
+    if (!isProcessing) return Colors.cyan;
+    if (isCorrect) return Colors.greenAccent;
+    if (selectedOption == option && !isCorrect) return Colors.redAccent;
+    return Colors.cyan;
   }
 
   @override
@@ -212,7 +228,26 @@ class _QuizMenuState extends State<QuizMenu> {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    if (isProcessing) return; // Prevent double taps without visually disabling the button
+                    
+                    setState(() {
+                      selectedOption = option;
+                      isProcessing = true;
+                    });
+                    
+                    // Audio Feedback!
+                    if (isCorrect) {
+                      AudioManager().playSfx('correct.mp3');
+                    } else {
+                      AudioManager().playRandomCrash();
+                    }
+                    
+                    // Wait for 1.2 seconds to show the colors
+                    await Future.delayed(const Duration(milliseconds: 1200));
+                    
+                    if (!mounted) return; // safety check
+                    
                     if (isCorrect) {
                       widget.game.answerCorrectly();
                     } else {
@@ -220,12 +255,9 @@ class _QuizMenuState extends State<QuizMenu> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    // You can keep them all one color so the player has to guess, 
-                    // or style them differently after they click. 
-                    // For now, let's make them all look the same to hide the answer!
-                    backgroundColor: Colors.blueGrey[900], 
+                    backgroundColor: _getButtonColor(option, isCorrect), 
                     minimumSize: const Size(double.infinity, 45),
-                    side: const BorderSide(color: Colors.cyan, width: 1),
+                    side: BorderSide(color: _getBorderColor(option, isCorrect), width: 1),
                   ),
                   child: Text(
                     option, 
@@ -643,13 +675,16 @@ class _GameOverMenuState extends State<GameOverMenu> {
           ],
         ),
         width: 350,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _hasSubmitted ? _buildLeaderboard() : _buildSubmissionForm(),
-            const SizedBox(height: 15),
-            const AdBannerWidget(),
-          ],
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _hasSubmitted ? _buildLeaderboard() : _buildSubmissionForm(),
+              const SizedBox(height: 15),
+              const AdBannerWidget(),
+            ],
+          ),
         ),
       ),
     );

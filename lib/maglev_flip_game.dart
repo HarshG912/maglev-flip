@@ -794,7 +794,12 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
     bgmPlayer.setVolume(0.5); // Restore music volume
     overlays.remove('QuizOverlay'); // Hide the popup
     overlays.add('InGameHUD'); // Restore the HUD
+    overlays.add('PauseButtonOverlay'); // Restore the Pause Button
     score *= 2; // DOUBLE THE SCORE!
+    
+    // UI: Show a massive floating text to the player!
+    spawnBonusText("SCORE DOUBLED! x2", (size / 2).clone());
+    
     // Restore the dynamic speed
     gameSpeed = preCrashSpeed;
     

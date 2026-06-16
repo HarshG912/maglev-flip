@@ -129,7 +129,7 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
     super.onLoad();
     
     // Turn this on! It draws neon boxes around all hitboxes.
-    debugMode = true;
+    debugMode = false;
     
     // Set the audio player to loop infinitely
     await bgmPlayer.setReleaseMode(ReleaseMode.loop);

@@ -365,115 +365,107 @@ class _MainMenuState extends State<MainMenu> {
         ),
         width: 320,
         constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              "SELECT DATABASE",
-              style: TextStyle(color: Colors.cyan, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 2),
-            ),
-            const SizedBox(height: 20),
-            
-            // NEW: The pure Arcade Mode button
-            ElevatedButton(
-              onPressed: () => widget.game.startPlayForFun(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.pinkAccent.withOpacity(0.2), // Distinct color
-                side: const BorderSide(color: Colors.pinkAccent, width: 2),
-                minimumSize: const Size(double.infinity, 50),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "SELECT DATABASE",
+                style: TextStyle(color: Colors.cyan, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 2),
               ),
-              child: const Text("PLAY FOR FUN (PURE ARCADE)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-            
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: Text("--- OR STUDY ---", style: TextStyle(color: Colors.white54, fontSize: 12)),
-            ),
-            
-            // Check if we are currently downloading a specific subject
-            if (widget.game.isDownloading) ...[
-              const CircularProgressIndicator(color: Colors.cyan),
-              const SizedBox(height: 15),
-              const Text("Connecting to Server...", style: TextStyle(color: Colors.white)),
-            ] 
-            // Check if the master directory is still loading
-            else if (!widget.game.isDirectoryLoaded) ...[
-              const CircularProgressIndicator(color: Colors.cyan),
-            ] 
-            // Show the dynamic buttons
-            else ...[
-              // Search Bar
-              TextField(
-                controller: _searchController,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: 'Search subjects...',
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  prefixIcon: const Icon(Icons.search, color: Colors.cyan),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.cyan),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.cyan, width: 2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.arrow_forward, color: Colors.cyan),
-                    onPressed: () async {
-                      if (_searchController.text.isNotEmpty) {
-                        await _searchByShareCode(_searchController.text);
-                      }
-                    },
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    searchQuery = value;
-                  });
-                },
-                onSubmitted: (value) async {
-                  if (value.isNotEmpty) {
-                    await _searchByShareCode(value);
-                  }
-                },
-              ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 20),
               
-              // Scrollable list of categories
-              Flexible(
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ...filteredCategories.map((category) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: ElevatedButton(
-                            onPressed: () => widget.game.loadSubjectAndStart(category),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blueGrey[900],
-                              minimumSize: const Size(double.infinity, 50),
-                              side: const BorderSide(color: Colors.cyan, width: 1),
-                            ),
-                            child: Text(
-                              category.name, 
-                              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                      
-                      if (filteredCategories.isEmpty)
-                         const Padding(
-                           padding: EdgeInsets.all(20.0),
-                           child: Text("No subjects found", style: TextStyle(color: Colors.white54)),
-                         ),
-                    ],
-                  ),
+              // NEW: The pure Arcade Mode button
+              ElevatedButton(
+                onPressed: () => widget.game.startPlayForFun(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.pinkAccent.withOpacity(0.2), // Distinct color
+                  side: const BorderSide(color: Colors.pinkAccent, width: 2),
+                  minimumSize: const Size(double.infinity, 50),
                 ),
+                child: const Text("PLAY FOR FUN (PURE ARCADE)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
+              
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Text("--- OR STUDY ---", style: TextStyle(color: Colors.white54, fontSize: 12)),
+              ),
+              
+              // Check if we are currently downloading a specific subject
+              if (widget.game.isDownloading) ...[
+                const CircularProgressIndicator(color: Colors.cyan),
+                const SizedBox(height: 15),
+                const Text("Connecting to Server...", style: TextStyle(color: Colors.white)),
+              ] 
+              // Check if the master directory is still loading
+              else if (!widget.game.isDirectoryLoaded) ...[
+                const CircularProgressIndicator(color: Colors.cyan),
+              ] 
+              // Show the dynamic buttons
+              else ...[
+                // Search Bar
+                TextField(
+                  controller: _searchController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: 'Search subjects...',
+                    hintStyle: const TextStyle(color: Colors.white54),
+                    prefixIcon: const Icon(Icons.search, color: Colors.cyan),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.cyan),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.cyan, width: 2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.arrow_forward, color: Colors.cyan),
+                      onPressed: () async {
+                        if (_searchController.text.isNotEmpty) {
+                          await _searchByShareCode(_searchController.text);
+                        }
+                      },
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value;
+                    });
+                  },
+                  onSubmitted: (value) async {
+                    if (value.isNotEmpty) {
+                      await _searchByShareCode(value);
+                    }
+                  },
+                ),
+                const SizedBox(height: 15),
+                
+                // List of categories directly inline
+                ...filteredCategories.map((category) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: ElevatedButton(
+                      onPressed: () => widget.game.loadSubjectAndStart(category),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueGrey[900],
+                        minimumSize: const Size(double.infinity, 50),
+                        side: const BorderSide(color: Colors.cyan, width: 1),
+                      ),
+                      child: Text(
+                        category.name, 
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)
+                      ),
+                    ),
+                  );
+                }).toList(),
+                
+                if (filteredCategories.isEmpty)
+                   const Padding(
+                     padding: EdgeInsets.all(20.0),
+                     child: Text("No subjects found", style: TextStyle(color: Colors.white54)),
+                   ),
               const SizedBox(height: 20),
               const Divider(color: Colors.cyan, thickness: 1),
               const SizedBox(height: 10),

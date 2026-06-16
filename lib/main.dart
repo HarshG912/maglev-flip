@@ -8,9 +8,18 @@ import 'package:path_provider/path_provider.dart';
 import 'maglev_flip_game.dart';
 import 'audio_manager.dart';
 import 'ui/widgets/video_background.dart';
+import 'ad_banner.dart';
+
+import 'package:flutter/foundation.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Google Mobile Ads ONLY on Native, AdSense handles Web natively via index.html
+  if (!kIsWeb) {
+    await MobileAds.instance.initialize();
+  }
 
   await Supabase.initialize(
     url: 'https://hteolkfbjmouicmyuxqv.supabase.co',
@@ -553,7 +562,11 @@ class _MainMenuState extends State<MainMenu> {
                   ],
                 ),
               ),
-            ]
+            ],
+            
+            const SizedBox(height: 20),
+            // The AdMob Banner
+            const AdBannerWidget(),
           ],
         ),
       ),
@@ -622,7 +635,14 @@ class _GameOverMenuState extends State<GameOverMenu> {
           ],
         ),
         width: 350,
-        child: _hasSubmitted ? _buildLeaderboard() : _buildSubmissionForm(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _hasSubmitted ? _buildLeaderboard() : _buildSubmissionForm(),
+            const SizedBox(height: 15),
+            const AdBannerWidget(),
+          ],
+        ),
       ),
     );
   }

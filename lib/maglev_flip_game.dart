@@ -128,6 +128,9 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
   FutureOr<void> onLoad() async {
     super.onLoad();
     
+    // Turn this on! It draws neon boxes around all hitboxes.
+    debugMode = true;
+    
     // Set the audio player to loop infinitely
     await bgmPlayer.setReleaseMode(ReleaseMode.loop);
     
@@ -946,7 +949,8 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
 }
 
 class RailComponent extends SpriteComponent with HasGameRef<MaglevFlipGame> {
-  RailComponent({required super.position, required super.size});
+  RailComponent({required Vector2 position, required Vector2 size}) 
+      : super(position: position, size: size, anchor: Anchor.center);
 
   @override
   FutureOr<void> onLoad() async {
@@ -964,10 +968,7 @@ class PlayerComponent extends SpriteComponent with CollisionCallbacks, HasGameRe
   final Random _random = Random();
   double _trailTimer = 0; // Keeps track of when to spit out a new spark
 
-  PlayerComponent({required this.rail}) : super(size: playerSize) {
-    // Keep the anchor exactly in the center to make math and rotation easier
-    anchor = Anchor.center;
-  }
+  PlayerComponent({required this.rail}) : super(size: playerSize, anchor: Anchor.center);
 
   @override
   FutureOr<void> onLoad() async {
@@ -1191,9 +1192,7 @@ class DataShard extends PositionComponent with CollisionCallbacks, HasGameRef<Ma
   double _animationTime = 0;
 
   DataShard({required this.isTop, required Vector2 position})
-      : super(position: position, size: Vector2(24, 24)) {
-    anchor = Anchor.center;
-  }
+      : super(position: position, size: Vector2(24, 24), anchor: Anchor.center);
 
   final Paint _paint = Paint()
     ..color = Colors.amberAccent
@@ -1245,9 +1244,7 @@ class Obstacle extends SpriteComponent with HasGameRef<MaglevFlipGame>, Collisio
   final bool isTop;
 
   Obstacle({required this.isTop, required Vector2 position, required Sprite sprite})
-      : super(position: position, size: Vector2(80, 80), sprite: sprite) {
-    anchor = Anchor.center;
-  }
+      : super(position: position, size: Vector2(80, 80), sprite: sprite, anchor: Anchor.center);
 
   @override
   FutureOr<void> onLoad() async {

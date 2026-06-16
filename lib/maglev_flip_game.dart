@@ -106,12 +106,12 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
     // into an obstacle that is currently touching the train's nose.
     var missilePos = player.position.clone();
     missilePos.x += 60; // Offset by 60 pixels to the right
-    add(MissileComponent(position: missilePos, isTop: player.isOnTop));
+    rail.add(MissileComponent(position: missilePos, isTop: player.isOnTop));
   }
 
   void spawnQuestionCrate(Vector2 explosionPosition) {
     final crate = QuestionCrateComponent(position: explosionPosition);
-    add(crate);
+    rail.add(crate);
   }
 
   List<Sprite> globalBlockSprites = [];
@@ -161,7 +161,7 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
 
     // The player starts resting on top of the rail
     player = PlayerComponent(rail: rail);
-    add(player);
+    rail.add(player);
 
     scoreText = TextComponent(
       text: 'Score: 0',
@@ -204,20 +204,21 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
 
     bool spawnOnTop = random.nextBool(); // Randomly pick top or bottom
     
-    // With rail thickness = 40 and center anchor, rail edges are at +/- 20 from center.
+    // With rail thickness = 40 and center anchor, local y=0 is top edge.
+    // Rail local center is y=20.
     // Obstacle size is 80, with center anchor.
-    // Top: center Y = (size.y / 2 - 20) - 40 = size.y / 2 - 60
-    // Bottom: center Y = (size.y / 2 + 20) + 40 = size.y / 2 + 60
-    double obstacleY = spawnOnTop ? (size.y / 2) - 60 : (size.y / 2) + 60;
+    // Top: center Y = 20 - 20 - 40 = -40
+    // Bottom: center Y = 20 + 20 + 40 = 80
+    double obstacleY = spawnOnTop ? -40.0 : 80.0;
     
     // Shard size is 24, with center anchor.
-    // Top: center Y = (size.y / 2 - 20) - 12 = size.y / 2 - 32
-    // Bottom: center Y = (size.y / 2 + 20) + 12 = size.y / 2 + 32
-    double shardY = spawnOnTop ? (size.y / 2) - 32 : (size.y / 2) + 32;
+    // Top: center Y = 20 - 20 - 12 = -12
+    // Bottom: center Y = 20 + 20 + 12 = 52
+    double shardY = spawnOnTop ? -12.0 : 52.0;
 
     // Roll a dice: 70% chance for an obstacle, 30% chance for a safe item path
     if (random.nextDouble() > 0.3) {
-      add(Obstacle(
+      rail.add(Obstacle(
         isTop: spawnOnTop,
         position: Vector2(size.x + 100, obstacleY),
         sprite: globalBlockSprites[random.nextInt(globalBlockSprites.length)],
@@ -225,15 +226,15 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
       
       // If an obstacle spawns, sometimes spawn a reward shard on the opposite side 
       if (random.nextBool()) {
-        double oppositeShardY = spawnOnTop ? (size.y / 2) + 32 : (size.y / 2) - 32;
-        add(DataShard(
+        double oppositeShardY = spawnOnTop ? 52.0 : -12.0;
+        rail.add(DataShard(
           isTop: !spawnOnTop,
           position: Vector2(size.x + 250, oppositeShardY), // 150 pixels behind the obstacle
         ));
       }
     } else {
       // Just a clean reward path with no danger nearby
-      add(DataShard(
+      rail.add(DataShard(
         isTop: spawnOnTop,
         position: Vector2(size.x + 100, shardY),
       ));
@@ -278,7 +279,7 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
       // Keep the rail correctly centered if screen resizes
       rail.position = Vector2(size.x / 2, size.y / 2);
       rail.size = Vector2(size.x, 40);
-      player.updatePosition();
+      // player is now a child of rail, so it doesn't need its absolute position updated!
     }
   }
 
@@ -316,7 +317,7 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
       bool nearMiss = false;
       
       // Look at every obstacle currently on the screen
-      for (final obstacle in children.whereType<Obstacle>()) {
+      for (final obstacle in rail.children.whereType<Obstacle>()) {
         // Calculate the distance from the front of the train to the obstacle
         double distance = obstacle.position.x - (player.position.x + player.size.x / 2);
         
@@ -691,16 +692,16 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
     // Stop BGM when returning to menu
     audioManager.stopBgm();
     
-    children.whereType<Obstacle>().forEach((obstacle) {
+    rail.children.whereType<Obstacle>().forEach((obstacle) {
       obstacle.removeFromParent();
     });
-    children.whereType<DataShard>().forEach((shard) {
+    rail.children.whereType<DataShard>().forEach((shard) {
       shard.removeFromParent();
     });
-    children.whereType<ParticleSystemComponent>().forEach((p) {
+    rail.children.whereType<ParticleSystemComponent>().forEach((p) {
       p.removeFromParent();
     });
-    children.whereType<MissileComponent>().forEach((m) {
+    rail.children.whereType<MissileComponent>().forEach((m) {
       m.removeFromParent();
     });
     
@@ -723,7 +724,7 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
     isHitStop = true;
     
     // Destroy any stray missiles that were fired exactly on the crash frame
-    children.whereType<MissileComponent>().forEach((m) {
+    rail.children.whereType<MissileComponent>().forEach((m) {
       m.removeFromParent();
     });
     
@@ -846,7 +847,7 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
     player.paint.color = player.paint.color.withOpacity(0);
     
     // Spawn explosion
-    add(
+    rail.add(
       ParticleSystemComponent(
         position: player.position,
         particle: Particle.generate(
@@ -887,16 +888,16 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
     overlays.remove('GameOverOverlay');
     
     // Find all existing red blocks and shards and destroy them so the track is clear
-    children.whereType<Obstacle>().forEach((obstacle) {
+    rail.children.whereType<Obstacle>().forEach((obstacle) {
       obstacle.removeFromParent();
     });
-    children.whereType<DataShard>().forEach((shard) {
+    rail.children.whereType<DataShard>().forEach((shard) {
       shard.removeFromParent();
     });
-    children.whereType<ParticleSystemComponent>().forEach((p) {
+    rail.children.whereType<ParticleSystemComponent>().forEach((p) {
       p.removeFromParent();
     });
-    children.whereType<MissileComponent>().forEach((m) {
+    rail.children.whereType<MissileComponent>().forEach((m) {
       m.removeFromParent();
     });
 
@@ -1045,7 +1046,7 @@ class PlayerComponent extends SpriteComponent with CollisionCallbacks, HasGameRe
 
   // The Engine Exhaust Spark Generator
   void _spawnCyanTrail() {
-    gameRef.add(
+    gameRef.rail.add(
       ParticleSystemComponent(
         // Spawn at the back of the train (since anchor is center, back is position.x - size.x/2)
         position: Vector2(position.x - size.x / 2 + 10, position.y),
@@ -1072,7 +1073,7 @@ class PlayerComponent extends SpriteComponent with CollisionCallbacks, HasGameRe
 
   // The Magenta Gravity Burst Generator
   void spawnMagentaBurst() {
-    gameRef.add(
+    gameRef.rail.add(
       ParticleSystemComponent(
         // Spawn right in the dead center of the train
         position: position,
@@ -1104,17 +1105,14 @@ class PlayerComponent extends SpriteComponent with CollisionCallbacks, HasGameRe
     // Moved further right so it's fully visible (half-width is 80, so 150 leaves 70px gap)
     const xPos = 150.0;
     
-    // Rail anchor is now center, size.y is 40.
-    // Rail top edge = rail.position.y - 20
-    // Rail bottom edge = rail.position.y + 20
-    
+    // Rail local Y center is 20
     if (isOnTop) {
-      position = Vector2(xPos, rail.position.y - 20 - size.y / 2);
+      position = Vector2(xPos, -40.0);
       if (isFlippedVertically) {
         flipVertically();
       }
     } else {
-      position = Vector2(xPos, rail.position.y + 20 + size.y / 2);
+      position = Vector2(xPos, 80.0);
       if (!isFlippedVertically) {
         flipVertically();
       }

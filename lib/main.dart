@@ -643,13 +643,16 @@ class _GameOverMenuState extends State<GameOverMenu> {
           ],
         ),
         width: 350,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _hasSubmitted ? _buildLeaderboard() : _buildSubmissionForm(),
-            const SizedBox(height: 15),
-            const AdBannerWidget(),
-          ],
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _hasSubmitted ? _buildLeaderboard() : _buildSubmissionForm(),
+              const SizedBox(height: 15),
+              const AdBannerWidget(),
+            ],
+          ),
         ),
       ),
     );

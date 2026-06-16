@@ -11,6 +11,7 @@ import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/particles.dart';
 import 'package:flame/collisions.dart';
+import 'package:flame/camera.dart';
 import 'package:csv/csv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -34,6 +35,13 @@ class QuizQuestion {
 }
 
 class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection {
+  MaglevFlipGame() : super(
+    camera: CameraComponent.withFixedResolution(
+      width: 1280, 
+      height: 720,
+    ),
+  );
+
   late final RailComponent rail;
   late final PlayerComponent player;
   

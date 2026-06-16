@@ -31,8 +31,47 @@
 
   <title>maglev_flip</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    /* The hidden rotation overlay */
+    #rotate-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #0F2027;
+      color: white;
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    /* When the device is held vertically, show the overlay and hide the game */
+    @media screen and (orientation: portrait) and (max-width: 768px) {
+      #rotate-overlay {
+        display: flex;
+      }
+      /* Hide the flutter canvas container */
+      #flutter-container {
+        display: none;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div id="rotate-overlay">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16.48 2.52c3.27 1.55 5.61 4.72 5.97 8.48h1.5C23.44 4.84 18.29 0 12 0l-.66.03 3.81 3.81 1.33-1.32zm-6.25-.77c-.59-.59-1.54-.59-2.12 0L1.75 8.11c-.59.59-.59 1.54 0 2.12l12.02 12.02c.59.59 1.54.59 2.12 0l6.36-6.36c.59-.59.59-1.54 0-2.12L10.23 1.75zm4.6 19.46L2.81 9.17l6.36-6.36 12.02 12.02-6.36 6.36zm-7.3-9.27L5.4 9.81l2.12-2.12 2.13 2.13 2.12-2.13 2.13 2.13-2.13 2.12 2.13 2.13-2.13 2.12-2.12-2.12-2.13 2.12z"/>
+    </svg>
+    <h2 style="margin-top: 20px;">Please rotate your device</h2>
+    <p>Maglev Flip is best played in landscape mode.</p>
+  </div>
+
   <!--
     You can customize the "flutter_bootstrap.js" script.
     This is useful to provide a custom configuration to the Flutter loader

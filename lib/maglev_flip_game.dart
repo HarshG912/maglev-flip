@@ -39,7 +39,7 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
     camera: CameraComponent.withFixedResolution(
       width: 1280, 
       height: 720,
-    ),
+    )..viewfinder.anchor = Anchor.topLeft,
   );
 
   late final RailComponent rail;

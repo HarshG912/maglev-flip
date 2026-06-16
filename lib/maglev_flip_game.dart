@@ -296,7 +296,7 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
 
     if (!_hasInteracted) {
       _hasInteracted = true;
-      if (networkBgmUrl != null && bgmPlayer.state != PlayerState.playing) {
+      if (networkBgmUrl != null && bgmPlayer.state != PlayerState.playing && !audioManager.isBgmMuted) {
         bgmPlayer.play(UrlSource(networkBgmUrl!), volume: 0.5).catchError((e) {
           print("Failed to auto-play background music on tap: $e");
         });
@@ -458,9 +458,11 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
       // Stream the Background Music (Fire and forget, do not await!)
       if (musicStr != null && musicStr.trim().isNotEmpty && musicStr.startsWith('http')) {
         networkBgmUrl = musicStr.trim();
-        bgmPlayer.play(UrlSource(networkBgmUrl!), volume: 0.5).catchError((e) {
-          print("Failed to auto-play background music: $e");
-        });
+        if (!audioManager.isBgmMuted) {
+          bgmPlayer.play(UrlSource(networkBgmUrl!), volume: 0.5).catchError((e) {
+            print("Failed to auto-play background music: $e");
+          });
+        }
       }
       
       print("Global asset initialization complete.");
@@ -638,7 +640,7 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
     
     // Start background music loop (Prioritize Network BGM if available)
     if (networkBgmUrl != null) {
-      if (bgmPlayer.state != PlayerState.playing) {
+      if (bgmPlayer.state != PlayerState.playing && !audioManager.isBgmMuted) {
         bgmPlayer.play(UrlSource(networkBgmUrl!), volume: 0.5).catchError((e) {
           print("Failed to play network bgm: $e");
         });
@@ -670,7 +672,7 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
     
     // Start background music loop (Prioritize Network BGM if available)
     if (networkBgmUrl != null) {
-      if (bgmPlayer.state != PlayerState.playing) {
+      if (bgmPlayer.state != PlayerState.playing && !audioManager.isBgmMuted) {
         bgmPlayer.play(UrlSource(networkBgmUrl!), volume: 0.5).catchError((e) {
           print("Failed to play network bgm: $e");
         });

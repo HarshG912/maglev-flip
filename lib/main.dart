@@ -1337,6 +1337,12 @@ class _SoundSettingsMenuState extends State<SoundSettingsMenu> {
                 onChanged: (value) {
                   setState(() {
                     audioManager.toggleBgm();
+                    // Also mute the network BGM from Supabase
+                    if (audioManager.isBgmMuted) {
+                      widget.game.bgmPlayer.pause();
+                    } else if (widget.game.networkBgmUrl != null) {
+                      widget.game.bgmPlayer.resume();
+                    }
                   });
                 },
               ),

@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:flame_audio/flame_audio.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class AudioManager {
   static final AudioManager _instance = AudioManager._internal();
@@ -24,22 +24,12 @@ class AudioManager {
   ];
 
   final Random _random = Random();
+  final AudioPlayer _localBgmPlayer = AudioPlayer();
 
   Future<void> init() async {
-    FlameAudio.bgm.initialize();
-    
-    // Preload all audio assets
-    await FlameAudio.audioCache.loadAll([
-      ...bgmTracks,
-      'coin_collector.wav',
-      'crash.wav',
-      'crash2.wav',
-      'Flip.wav',
-      'game_over.wav',
-      'near_miss.wav',
-      'missile_fired.mp3',
-      'missile_unlocked.mp3',
-    ]);
+    await _localBgmPlayer.setReleaseMode(ReleaseMode.loop);
+    // Note: With modern audioplayers, we don't need to explicitly preload small SFX files
+    // as they load instantly from the asset bundle when requested.
   }
 
   void setBgmTrack(String trackName) {
@@ -53,16 +43,24 @@ class AudioManager {
 
   void playBgm(String fileName, {double volume = 0.4}) {
     if (_isBgmMuted) return;
-    FlameAudio.bgm.play(fileName, volume: volume);
+    _localBgmPlayer.play(AssetSource('audio/$fileName'), volume: volume).catchError((e) {
+      print("Error playing local BGM $fileName: $e");
+    });
   }
 
   void stopBgm() {
-    FlameAudio.bgm.stop();
+    _localBgmPlayer.stop();
   }
 
-  void playSfx(String fileName, {double volume = 1.0}) {
+  void playSfx(String fileName, {double volume = 1.0}) async {
     if (_isSfxMuted) return;
-    FlameAudio.play(fileName, volume: volume);
+    try {
+      final player = AudioPlayer();
+      await player.play(AssetSource('audio/$fileName'), volume: volume);
+      player.onPlayerComplete.listen((_) => player.dispose());
+    } catch (e) {
+      print("Error playing SFX $fileName: $e");
+    }
   }
 
   void playRandomCrash() {

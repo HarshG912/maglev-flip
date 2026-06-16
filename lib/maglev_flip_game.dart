@@ -377,7 +377,7 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
           .from('master_subjects')
           .select()
           .eq('is_public', true)
-          .order('created_at', ascending: false);
+          .order('play_count', ascending: false);
 
       availableCategories.clear();
       for (var row in data) {
@@ -577,6 +577,13 @@ class MaglevFlipGame extends FlameGame with TapCallbacks, HasCollisionDetection 
     activeQuestions.clear(); // Clear out any previous game's questions
 
     try {
+      // Background atomic increment of the play_count via RPC
+      if (category.shareCode.isNotEmpty) {
+        supabase.rpc('increment_play_count', params: {'target_share_code': category.shareCode}).catchError((e) {
+          print("Failed to increment play count via RPC: $e");
+        });
+      }
+
       // Get the secure URL from Supabase using the RPC
       // If it's a "Play for Fun" or legacy without a shareCode, we skip RPC and try direct fetch
       String fetchUrl = category.csvUrl;

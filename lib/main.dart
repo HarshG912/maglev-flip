@@ -351,9 +351,17 @@ class _MainMenuState extends State<MainMenu> {
   @override
   Widget build(BuildContext context) {
     // Filter the categories based on the search query
-    final filteredCategories = widget.game.availableCategories.where((category) {
+    var filteredCategories = widget.game.availableCategories.where((category) {
       return category.name.toLowerCase().contains(searchQuery.toLowerCase());
     }).toList();
+    
+    // UX FIX: If there are 100+ subjects, don't show all of them at once! 
+    // Only show the top 5 newest ones. The user can use the search bar to find the rest.
+    bool showingLimited = false;
+    if (searchQuery.isEmpty && filteredCategories.length > 5) {
+      filteredCategories = filteredCategories.take(5).toList();
+      showingLimited = true;
+    }
 
     return Center(
       child: Container(
@@ -466,6 +474,13 @@ class _MainMenuState extends State<MainMenu> {
                      padding: EdgeInsets.all(20.0),
                      child: Text("No subjects found", style: TextStyle(color: Colors.white54)),
                    ),
+                
+                // Show a hint if we capped the list
+                if (showingLimited)
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: Text("Use the search bar to find more subjects!", style: TextStyle(color: Colors.cyan, fontSize: 12, fontStyle: FontStyle.italic)),
+                  ),
               const SizedBox(height: 20),
               const Divider(color: Colors.cyan, thickness: 1),
               const SizedBox(height: 10),
@@ -562,6 +577,7 @@ class _MainMenuState extends State<MainMenu> {
           ],
         ),
       ),
+    ),
     );
   }
 }

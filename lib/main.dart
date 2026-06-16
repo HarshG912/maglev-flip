@@ -1591,7 +1591,7 @@ class _CreateSubjectMenuState extends State<CreateSubjectMenu> {
           actions: [
             ElevatedButton(
               onPressed: () {
-                const String appLink = String.fromEnvironment('APP_LINK', defaultValue: 'https://maglevflip.com');
+                const String appLink = String.fromEnvironment('APP_LINK', defaultValue: 'https://funnplay.online');
                 String shareText = "Play Maglev Flip! Link: $appLink | Share Code: $shareCode";
                 if (!_isPublic) {
                   shareText += " | Login ID: $loginId | Password: $password";
